@@ -14,10 +14,10 @@ It has been tested and confirmed to run smoothly on a server with **2 CPU cores 
 ## Installation
 
 1.  Clone this repository to your server.
-2.  Install the necessary dependencies using the `requirements.txt` file:
+2.  Install the necessary dependencies
 
     ```bash
-    pip install -r requirements.txt
+    pip install "rembg[cpu,cli]"
     ```
 
 ## Usage
