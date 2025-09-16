@@ -2,6 +2,7 @@ import io
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, File, UploadFile, Request
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 from rembg import new_session, remove
 from PIL import Image
 
@@ -25,6 +26,14 @@ async def lifespan(app: FastAPI):
 
 # Create the FastAPI app with the lifespan event handler
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 允许所有来源的请求
+    allow_credentials=True,
+    allow_methods=["*"],  # 允许所有 HTTP 方法
+    allow_headers=["*"],  # 允许所有 HTTP 请求头
+)
 
 @app.post("/remove")
 async def remove_background_api(request: Request, file: UploadFile = File(...)):
