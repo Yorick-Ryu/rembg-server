@@ -3,7 +3,7 @@ FROM python:3.13-slim
 WORKDIR /app
 
 RUN pip install rembg[cpu,cli] && \
-    rembg d isnet-general-use
+    rembg d isnet-general-use silueta
 
 COPY . .
 

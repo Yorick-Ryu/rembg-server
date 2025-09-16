@@ -1,14 +1,24 @@
 {
   "models": {
     "u2net": "通用",
-    "silueta": "小型通用",
-    "isnet-anime": "动漫",
-    "isnet-general-use": "通用人像"
+    "u2netp": "u2net 模型的轻量级版本",
+    "u2net_human_seg": "用于人体分割的预训练模型",
+    "u2net_cloth_seg": "用于从人物肖像中进行服装解析的预训练模型，服装被划分为上身、下身和全身",
+    "silueta": "轻量化通用",
+    "isnet-general-use": "通用",
+    "isnet-anime": "针对动漫角色的高精度分割模型",
+    "sam": "适用于各种场景的预训练模型",
+    "birefnet-general": "适用于通用场景的预训练模型",
+    "birefnet-general-lite": "适用于通用场景的轻量级预训练模型",
+    "birefnet-portrait": "用于人像分割的预训练模型",
+    "birefnet-dis": "用于二值图像分割（DIS）的预训练模型",
+    "birefnet-hrsod": "用于高分辨率显著性物体检测（HRSOD）的预训练模型",
+    "birefnet-cod": "用于隐蔽物体检测（COD）的预训练模型",
+    "birefnet-massive": "基于大规模数据集的预训练模型"
   },
   "preloaded_models": [
     "isnet-general-use",
-    "u2net",
-    "isnet-anime"
+    "silueta"
   ],
-  "default_model": "isnet-general-use"
+  "default_model": "silueta"
 }
