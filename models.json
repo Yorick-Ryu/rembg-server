@@ -1,0 +1,14 @@
+{
+  "models": {
+    "u2net": "通用",
+    "silueta": "小型通用",
+    "isnet-anime": "动漫",
+    "isnet-general-use": "通用人像"
+  },
+  "preloaded_models": [
+    "isnet-general-use",
+    "u2net",
+    "isnet-anime"
+  ],
+  "default_model": "isnet-general-use"
+}
