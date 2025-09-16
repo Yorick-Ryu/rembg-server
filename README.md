@@ -23,7 +23,7 @@ It has been tested and confirmed to run smoothly on a server with **2 CPU cores 
 2.  Install the necessary dependencies:
 
     ```bash
-    pip install rembg[cpu,cli] fastapi uvicorn pillow
+    pip install rembg[cpu,cli]
     ```
 
 3.  Configure models in `models.json` file. The server will automatically download required models on first use.
