@@ -16,10 +16,5 @@
     "birefnet-cod": "用于隐蔽物体检测（COD）的预训练模型",
     "birefnet-massive": "基于大规模数据集的预训练模型"
   },
-  "preloaded_models": [
-    "silueta",
-    "isnet-general-use",
-    "isnet-anime"
-  ],
   "default_model": "silueta"
 }
