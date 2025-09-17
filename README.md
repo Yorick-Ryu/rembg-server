@@ -6,67 +6,118 @@ It has been tested and confirmed to run smoothly on a server with **2 CPU cores 
 
 ## Features
 
--   Simple, multi-endpoint API with JSON configuration
--   Supports 15+ different AI models for background removal
--   Provides an endpoint to list all available models with descriptions
--   Efficiently pre-loads selected models on server startup
--   Dynamic model loading for non-preloaded models
--   Streams the processed image back to the client, minimizing server memory usage
--   Comprehensive logging with different log levels
--   JSON-based configuration management
+- Simple, multi-endpoint API with JSON configuration
+- Supports 15+ different AI models for background removal
+- Model enable/disable configuration for flexible deployment
+- Session auto-cleanup after each request (no model pre-loading)
+- Streams the processed image back to the client, minimizing server memory usage
+- Comprehensive logging with different log levels
+- JSON-based configuration management
+- Direct Python execution with command-line arguments
 
 ## Installation
 
 ### Method 1: Direct Installation
 
-1.  Clone this repository to your server.
-2.  Install the necessary dependencies:
+1. Clone this repository to your server.
+2. Install the necessary dependencies:
 
     ```bash
     pip install rembg[cpu,cli]
     ```
 
-3.  Configure models in `models.json` file. The server will automatically download required models on first use.
+3. Configure models in `models.json` file. The server will automatically download required models on first use.
 
 ### Method 2: Docker Installation
 
-1.  Build the Docker image:
+1. Build the Docker image:
     ```bash
     docker build -t rembg-server .
     ```
 
-2.  Run the container:
+2. Run the container:
     ```bash
-    docker run -d --name rembg-service -p 7000:7000 rembg-server
+    docker run -d --name rembg-service -p 7001:7001 rembg-server
+    ```
+
+3. Run with custom port:
+    ```bash
+    docker run -d -p 8080:8080 -e PORT=8080 --name rembg-service rembg-server
     ```
 
 ## Configuration
 
 The server uses a `models.json` file for configuration. This file contains:
 
-- **models**: All available models with their Chinese descriptions
-- **preloaded_models**: Models to load on server startup (faster response)
+- **models**: Array of model configurations with name, description, and enabled status
 - **default_model**: Default model when none is specified
 
 Example `models.json`:
 ```json
 {
-  "models": {
-    "silueta": "轻量化通用",
-    "isnet-general-use": "通用",
-    "isnet-anime": "针对动漫角色的高精度分割模型"
-  },
-  "preloaded_models": ["isnet-general-use", "silueta"],
+  "models": [
+    {
+      "name": "u2net",
+      "desc": "通用",
+      "enabled": false
+    },
+    {
+      "name": "silueta",
+      "desc": "轻量级通用",
+      "enabled": true
+    },
+    {
+      "name": "isnet-general-use",
+      "desc": "通用",
+      "enabled": true
+    },
+    {
+      "name": "isnet-anime",
+      "desc": "动漫",
+      "enabled": true
+    }
+  ],
   "default_model": "silueta"
 }
 ```
 
+### Model Configuration
+
+- **enabled: true** - Model is available via API and can be used
+- **enabled: false** - Model is disabled and won't appear in `/models` endpoint
+- Only enabled models consume memory and are accessible via the API
+
 ## Usage
 
-Run the server using `uvicorn`. The following command will start the server on port 7000 and make it accessible from your local network.
+### Local Development
+
+Run the server using the built-in Python script:
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 7000
+# Default port 7001
+python main.py
+
+# Custom port
+python main.py -p 8080
+
+# Custom host and port
+python main.py --host 127.0.0.1 -p 8080
+
+# View help
+python main.py --help
+```
+
+### Command Line Options
+
+```
+usage: main.py [-h] [-p PORT] [--host HOST]
+
+rembg 背景移除服务器
+
+options:
+  -h, --help            show this help message and exit
+  -p PORT, --port PORT  服务器端口 (默认: 7001)
+  --host HOST           服务器主机地址 (默认: 0.0.0.0)
 ```
 
 ## API Endpoints
@@ -75,28 +126,28 @@ uvicorn main:app --host 0.0.0.0 --port 7000
 
 Returns a welcome message with basic information about the server.
 
--   **Method**: `GET`
--   **URL**: `/`
+- **Method**: `GET`
+- **URL**: `/`
 
 #### Example Response
 
 ```json
 {
-  "message": "欢迎使用 rembg 背景移除服务器。。"
+  "message": "欢迎使用 rembg 背景移除服务器。"
 }
 ```
 
 ### GET /models
 
-Returns a list of all available models with their names and Chinese descriptions.
+Returns a list of enabled models with their names and descriptions.
 
--   **Method**: `GET`
--   **URL**: `/models`
+- **Method**: `GET`
+- **URL**: `/models`
 
 #### Example using cURL
 
 ```bash
-curl http://your-server-ip:7000/models
+curl http://your-server-ip:7001/models
 ```
 
 #### Example Response
@@ -105,24 +156,16 @@ curl http://your-server-ip:7000/models
 {
   "models": [
     {
+      "name": "silueta",
+      "desc": "轻量级通用"
+    },
+    {
       "name": "isnet-general-use",
-      "description": "通用"
-    },
-    {
-      "name": "silueta", 
-      "description": "轻量化通用"
-    },
-    {
-      "name": "u2net",
-      "description": "通用"
+      "desc": "通用"
     },
     {
       "name": "isnet-anime",
-      "description": "针对动漫角色的高精度分割模型"
-    },
-    {
-      "name": "u2netp",
-      "description": "u2net 模型的轻量级版本"
+      "desc": "动漫"
     }
   ]
 }
@@ -145,12 +188,12 @@ Popular models include:
 
 This is the main endpoint for removing the background from an image.
 
--   **Method**: `POST`
--   **URL**: `/remove`
--   **Content-Type**: `multipart/form-data`
--   **Form Data**:
-    -   `file`: The image file you want to process. (Required)
-    -   `model`: The name of the model to use for processing. (Optional, defaults to `silueta`). Must be one of the models from the `/models` endpoint.
+- **Method**: `POST`
+- **URL**: `/remove`
+- **Content-Type**: `multipart/form-data`
+- **Form Data**:
+  - `file`: The image file you want to process. (Required)
+  - `model`: The name of the model to use for processing. (Optional, defaults to `silueta`). Must be one of the enabled models from the `/models` endpoint.
 
 #### Request Parameters
 
@@ -161,8 +204,8 @@ This is the main endpoint for removing the background from an image.
 
 #### Response
 
--   **Success**: Returns the processed image as PNG file
--   **Error**: Returns JSON error message with HTTP error code
+- **Success**: Returns the processed image as PNG file
+- **Error**: Returns JSON error message with HTTP error code
 
 #### Example using cURL
 
@@ -171,7 +214,7 @@ This is the main endpoint for removing the background from an image.
 ```bash
 curl -X POST \
   -F "file=@/path/to/your/image.jpg" \
-  http://your-server-ip:7000/remove \
+  http://your-server-ip:7001/remove \
   -o output.png
 ```
 
@@ -181,34 +224,56 @@ curl -X POST \
 curl -X POST \
   -F "file=@/path/to/your/anime-image.jpg" \
   -F "model=isnet-anime" \
-  http://your-server-ip:7000/remove \
+  http://your-server-ip:7001/remove \
   -o output_anime.png
 ```
 
-**3. Using a lightweight model for faster processing:**
+**3. Using a general-use model:**
 
 ```bash
 curl -X POST \
   -F "file=@/path/to/your/image.jpg" \
-  -F "model=u2netp" \
-  http://your-server-ip:7000/remove \
-  -o output_light.png
+  -F "model=isnet-general-use" \
+  http://your-server-ip:7001/remove \
+  -o output_general.png
 ```
 
 #### Error Responses
 
 ```json
 {
-  "detail": "模型 'invalid-model' 不可用。可用模型: ['isnet-general-use', 'silueta']"
+  "detail": "模型 'invalid-model' 不可用或未启用。可用模型: ['silueta', 'isnet-general-use', 'isnet-anime']"
 }
 ```
 
 ## Performance Notes
 
-- **Preloaded models** (`isnet-general-use`, `silueta`) respond faster as they're loaded at startup
-- **Non-preloaded models** are loaded on first use, which may take longer initially
-- The server automatically manages model memory and loading
-- Docker deployment includes optimized model pre-loading
+- **Session Auto-Cleanup**: Each request creates a new session that's automatically garbage collected after use
+- **No Pre-loading**: Models are loaded on-demand, reducing memory usage when idle
+- **Memory Efficient**: Only enabled models are available, reducing overall memory footprint
+- **Docker Optimization**: Docker image pre-downloads commonly used models for faster first-time usage
+
+## Docker Configuration
+
+The Docker image includes several optimizations:
+
+- **Pre-downloaded Models**: `silueta`, `isnet-general-use`, `isnet-anime`
+- **Environment Variables**: Use `PORT` to customize the listening port
+- **Default Port**: 7001 (configurable via environment variable)
+
+### Docker Examples
+
+```bash
+# Build and run on default port 7001
+docker build -t rembg-server .
+docker run -d -p 7001:7001 --name rembg rembg-server
+
+# Run on custom port 8080
+docker run -d -p 8080:8080 -e PORT=8080 --name rembg rembg-server
+
+# Run with volume mount for custom models.json
+docker run -d -p 7001:7001 -v ./models.json:/app/models.json --name rembg rembg-server
+```
 
 ## Acknowledgments
 
