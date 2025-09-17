@@ -140,4 +140,4 @@ async def remove_background_api(
 
 @app.get("/")
 def read_root():
-    return {"message": "欢迎使用 rembg 背景移除服务器。。"}
+    return {"message": "欢迎使用 rembg 背景移除服务器。"}
