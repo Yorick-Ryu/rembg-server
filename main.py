@@ -38,10 +38,36 @@ def load_config():
         logger.error(f"models.json 配置错误: {e}")
         raise
 
+def get_enabled_models(config):
+    """
+    Get list of enabled models from configuration.
+    """
+    enabled_models = {}
+    enabled_model_names = []
+    
+    for model in config['models']:
+        if model.get('enabled', True):  # Default to enabled if not specified
+            enabled_models[model['name']] = model.get('desc', 'No description available.')
+            enabled_model_names.append(model['name'])
+    
+    return enabled_models, enabled_model_names
+
 # Load configuration from JSON file
 config = load_config()
-MODEL_DESCRIPTIONS = config['models']
+MODEL_DESCRIPTIONS, ENABLED_MODEL_NAMES = get_enabled_models(config)
 DEFAULT_MODEL = config['default_model']
+
+# Validate that default model is enabled
+if DEFAULT_MODEL not in ENABLED_MODEL_NAMES:
+    logger.warning(f"默认模型 '{DEFAULT_MODEL}' 未启用，使用第一个启用的模型")
+    if ENABLED_MODEL_NAMES:
+        DEFAULT_MODEL = ENABLED_MODEL_NAMES[0]
+    else:
+        logger.error("没有启用的模型！")
+        raise ValueError("No enabled models found in configuration")
+
+logger.info(f"启用的模型: {ENABLED_MODEL_NAMES}")
+logger.info(f"默认模型: {DEFAULT_MODEL}")
 # -------------------
 
 # Create the FastAPI app
@@ -59,15 +85,17 @@ app.add_middleware(
 @app.get("/models")
 async def get_models():
     """
-    Returns a list of all available models with their descriptions.
+    Returns a list of enabled models with their descriptions.
     """
     models_with_descriptions = []
-    for model_name in sessions_names:
-        model_info = {
-            "name": model_name,
-            "description": MODEL_DESCRIPTIONS.get(model_name, "No description available.")
-        }
-        models_with_descriptions.append(model_info)
+    for model_name in ENABLED_MODEL_NAMES:
+        # Double check that the model exists in rembg sessions
+        if model_name in sessions_names:
+            model_info = {
+                "name": model_name,
+                "desc": MODEL_DESCRIPTIONS.get(model_name, "No description available.")
+            }
+            models_with_descriptions.append(model_info)
     
     return {"models": models_with_descriptions}
 
@@ -81,11 +109,18 @@ async def remove_background_api(
     Accepts a 'model' form field to specify which model to use.
     Creates a new session for each request for automatic cleanup.
     """
-    # Check if the requested model is available
+    # Check if the requested model is enabled and available
+    if model not in ENABLED_MODEL_NAMES:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"模型 '{model}' 不可用或未启用。可用模型: {ENABLED_MODEL_NAMES}"
+        )
+    
+    # Double check that the model exists in rembg sessions
     if model not in sessions_names:
         raise HTTPException(
             status_code=400, 
-            detail=f"模型 '{model}' 不可用。可用模型: {list(sessions_names)}"
+            detail=f"模型 '{model}' 在rembg中不存在。"
         )
 
     # Read the image data from the upload

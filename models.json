@@ -1,20 +1,80 @@
 {
-  "models": {
-    "u2net": "通用",
-    "u2netp": "u2net 模型的轻量级版本",
-    "u2net_human_seg": "用于人体分割的预训练模型",
-    "u2net_cloth_seg": "用于从人物肖像中进行服装解析的预训练模型，服装被划分为上身、下身和全身",
-    "silueta": "轻量级通用",
-    "isnet-general-use": "通用",
-    "isnet-anime": "针对动漫角色的高精度分割模型",
-    "sam": "适用于各种场景的预训练模型",
-    "birefnet-general": "适用于通用场景的预训练模型",
-    "birefnet-general-lite": "轻量级通用",
-    "birefnet-portrait": "用于人像分割的预训练模型",
-    "birefnet-dis": "用于二值图像分割（DIS）的预训练模型",
-    "birefnet-hrsod": "用于高分辨率显著性物体检测（HRSOD）的预训练模型",
-    "birefnet-cod": "用于隐蔽物体检测（COD）的预训练模型",
-    "birefnet-massive": "基于大规模数据集的预训练模型"
-  },
+  "models": [
+    {
+      "name": "u2net",
+      "desc": "通用",
+      "enabled": false
+    },
+    {
+      "name": "u2netp",
+      "desc": "u2net 模型的轻量级版本",
+      "enabled": false
+    },
+    {
+      "name": "u2net_human_seg",
+      "desc": "用于人体分割的预训练模型",
+      "enabled": false
+    },
+    {
+      "name": "u2net_cloth_seg",
+      "desc": "用于从人物肖像中进行服装解析的预训练模型",
+      "enabled": false
+    },
+    {
+      "name": "silueta",
+      "desc": "轻量级通用",
+      "enabled": true
+    },
+    {
+      "name": "isnet-general-use",
+      "desc": "通用",
+      "enabled": true
+    },
+    {
+      "name": "isnet-anime",
+      "desc": "动漫",
+      "enabled": true
+    },
+    {
+      "name": "sam",
+      "desc": "适用于各种场景的预训练模型（资源占用较大）",
+      "enabled": false
+    },
+    {
+      "name": "birefnet-general",
+      "desc": "适用于通用场景的预训练模型",
+      "enabled": false
+    },
+    {
+      "name": "birefnet-general-lite",
+      "desc": "轻量级通用背景移除模型",
+      "enabled": false
+    },
+    {
+      "name": "birefnet-portrait",
+      "desc": "用于人像分割的预训练模型",
+      "enabled": false
+    },
+    {
+      "name": "birefnet-dis",
+      "desc": "用于二值图像分割（DIS）的预训练模型",
+      "enabled": false
+    },
+    {
+      "name": "birefnet-hrsod",
+      "desc": "用于高分辨率显著性物体检测（HRSOD）的预训练模型",
+      "enabled": false
+    },
+    {
+      "name": "birefnet-cod",
+      "desc": "用于隐蔽物体检测（COD）的预训练模型",
+      "enabled": false
+    },
+    {
+      "name": "birefnet-massive",
+      "desc": "基于大规模数据集的预训练模型（资源占用极大）",
+      "enabled": false
+    }
+  ],
   "default_model": "silueta"
 }
