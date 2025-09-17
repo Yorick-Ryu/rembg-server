@@ -1,6 +1,8 @@
 import io
 import json
 import logging
+import argparse
+import uvicorn
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -151,3 +153,30 @@ async def remove_background_api(
 @app.get("/")
 def read_root():
     return {"message": "欢迎使用 rembg 背景移除服务器。"}
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="rembg 背景移除服务器")
+    parser.add_argument(
+        "-p", "--port", 
+        type=int, 
+        default=7001, 
+        help="服务器端口 (默认: 7001)"
+    )
+    parser.add_argument(
+        "--host", 
+        type=str, 
+        default="0.0.0.0", 
+        help="服务器主机地址 (默认: 0.0.0.0)"
+    )
+    
+    args = parser.parse_args()
+    
+    logger.info(f"启动 rembg 背景移除服务器...")
+    
+    uvicorn.run(
+        "main:app",
+        host=args.host,
+        port=args.port,
+        log_level="info",
+        reload=False
+    )

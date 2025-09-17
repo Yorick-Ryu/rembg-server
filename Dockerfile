@@ -3,10 +3,13 @@ FROM python:3.13-slim
 WORKDIR /app
 
 RUN pip install rembg[cpu,cli] && \
-    rembg d isnet-general-use silueta
+    rembg d silueta isnet-general-use isnet-anime
 
 COPY . .
 
-EXPOSE 7000
+# 设置默认端口环境变量
+ENV PORT=7001
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7000"]
+EXPOSE $PORT
+
+CMD ["sh", "-c", "python main.py -p $PORT"]
