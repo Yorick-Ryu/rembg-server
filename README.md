@@ -23,7 +23,7 @@ You can install and run this service in one of two ways.
     ```
 2.  Install the required dependencies:
     ```bash
-    pip install rembg[cpu,cli]
+    pip install "rembg[cpu,cli]"
     ```
 3.  Start the server:
     ```bash

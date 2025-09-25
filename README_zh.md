@@ -23,7 +23,7 @@
     ```
 2.  安装所需的依赖库：
     ```bash
-    pip install rembg[cpu,cli]
+    pip install "rembg[cpu,cli]"
     ```
 3.  启动服务：
     ```bash
